@@ -1,0 +1,8 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("serverhealth", views.serverHealth),
+    path("numpyRandomArray", views.numpyRandomArray),
+    path("numpy-generation", views.numpyFileGeneration)
+]
