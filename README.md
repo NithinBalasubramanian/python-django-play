@@ -1,4 +1,4 @@
-## API based implementation of numpy
+## API based implementation of python libraries
 
 http://127.0.0.1:8000/ [local]
 
