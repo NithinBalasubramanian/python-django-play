@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+import json
+import os
 
 import numpy as np
 
@@ -30,3 +32,51 @@ def numpyFileGeneration(request):
         return JsonResponse({
             "error": str(e)
         }, status=500)
+    
+# post method 
+def generateNumpyBasicOperationsOfTwoArray(request):
+    data = json.loads(request.body)
+    if (data and data['array1'] and data['array2']):
+        try:
+            arr1 = np.array(data['array1'])
+            arr2 = np.array(data['array2'])
+            arr = np.array((arr1, arr2), dtype=int)
+            added_arr = np.add(arr1, arr2)
+            subtracted_arr = np.subtract(arr1, arr2)
+            multipy_arr = np.multiply(arr1, arr2)
+            flatterened = arr.flatten()
+
+            a = {
+                "message": "success",
+                "data" : {
+                    "array": arr.tolist(),
+                    "added": added_arr.tolist(),
+                    "subtract": subtracted_arr.tolist(),
+                    "multiply": multipy_arr.tolist(),
+                    "flattern": flatterened.tolist(),
+                    "mean": int(flatterened.mean()),
+                    "max": int(flatterened.max()),
+                    "min": int(flatterened.min())
+                }
+            }
+
+            file_dir = "./filesource/generated/numpy-files/"
+            os.makedirs(file_dir, exist_ok=True)
+            file_path = os.path.join(file_dir, "data.json")
+
+            # Save as JSON
+            with open(file_path, 'w') as f:
+                json.dump(a, f, indent=4)  # Use indent for pretty printing (optional)
+
+            # with open(file_path, 'r') as f:
+            #     loaded_data = json.load(f)
+
+        except Exception as e:
+            return JsonResponse({
+                "error": str(e)
+            }, status=500)
+    else:
+        a = {
+            "message": "failed"
+        }
+    return JsonResponse(a)
