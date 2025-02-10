@@ -4,6 +4,7 @@ import json
 import os
 
 import numpy as np
+import pandas as pd
 
 # Create your views here.
 
@@ -80,3 +81,24 @@ def generateNumpyBasicOperationsOfTwoArray(request):
             "message": "failed"
         }
     return JsonResponse(a)
+
+def pandRandomGeneration(request):
+    try:
+        data = pd.DataFrame({
+            "Name": ["nithin", "kiran", "sam", "barath"],
+            "age": ["27", "28", "31", "29"]
+        })  
+
+        # Convert to a format suitable for JSON (list of dictionaries)
+        data_list = data.to_dict(orient='records')  # 'records' format is often best
+
+        data.to_csv("./filesource/generated/pandas-files/panda-1-test.csv")
+
+        returnData = {
+            "data": data_list
+        }
+        return JsonResponse(returnData)
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
