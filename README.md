@@ -4,7 +4,7 @@ http://127.0.0.1:8000/ [local]
 
 ## numpy - play api 
 
-1 [get] - ![#1589F0](api/serverhealth) `#1589F0` - check api running successfully
+1 [get] api/serverhealth - check api running successfully
 
 2 [get] api/numpyRandomArray - just to check numpy implementation - return random array data
 
