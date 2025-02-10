@@ -4,13 +4,13 @@ http://127.0.0.1:8000/ [local]
 
 ## numpy - play api 
 
-1 [get] api/serverhealth - check api running successfully
+1 __[get] api/serverhealth__ - check api running successfully
 
-2 [get] api/numpyRandomArray - just to check numpy implementation - return random array data
+2 __[get] api/numpyRandomArray__ - just to check numpy implementation - return random array data
 
-3 [get] api/numpy-generation - generate two random array add and save as npy, txt and then feth data from npy to return json.
+3 __[get] api/numpy-generation__ - generate two random array add and save as npy, txt and then feth data from npy to return json.
 
-4 [post] api/generateNumpyBasicOperationsOfTwoArray - various numpy operations and save data as json file 
+4 __[post] api/generateNumpyBasicOperationsOfTwoArray__ - various numpy operations and save data as json file 
 
     payload exp = {
         "array1": [1,2, 34 , 4],
