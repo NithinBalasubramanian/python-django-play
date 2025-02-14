@@ -128,3 +128,25 @@ def fetchDataFromReferenceFiles(request):
         return JsonResponse({
             "error": str(e)
         }, status=500)
+    
+def fetchHeaderColumnsFromFile(request):
+    try:
+        payload = json.loads(request.body)
+        
+        if (payload and payload["file"] == "csv"):
+            data = pd.read_csv("./filesource/refsource/bios.csv") # csv is fetched faster than excel
+        else:
+           data= pd.read_excel("./filesource/refsource/olympics-data.xlsx")
+        
+        headers = data.columns.tolist()
+
+        
+        return JsonResponse({ 
+            "message": "Data fetched successfully", 
+            "fileTypeExtracted": payload["file"], 
+            "data": headers
+        }, safe=False)
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
