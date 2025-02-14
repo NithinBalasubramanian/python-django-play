@@ -142,7 +142,7 @@ def fetchHeaderColumnsFromFile(request):
 
         
         return JsonResponse({ 
-            "message": "Data fetched successfully", 
+            "message": "Header fetched successfully", 
             "fileTypeExtracted": payload["file"], 
             "data": headers
         }, safe=False)
