@@ -12,7 +12,10 @@ http://127.0.0.1:8000/ [local]
 
 4 __[post] api/generateNumpyBasicOperationsOfTwoArray__ - various numpy operations and save data as json file 
 
-    payload exp = {
+
+    payload :
+    
+    {
         "array1": [1,2, 34 , 4],
         "array2": [4,5, 12, 56]
     }
@@ -20,3 +23,12 @@ http://127.0.0.1:8000/ [local]
 ## pandas - play api
 
 5 __[get] api/pandRandomGeneration__ - Pandas check static datafram setup , save as csv and export as json
+
+6 __[post] api/fetchDataFromReferenceFiles__ - Fetch file from existing reference file and send in json format , fetch based on file type and count based data
+
+    payload :
+
+    {
+        "file": "csv",
+        "count": 25
+    }

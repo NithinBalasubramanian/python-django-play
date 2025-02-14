@@ -9,4 +9,5 @@ urlpatterns = [
     path("generateNumpyBasicOperationsOfTwoArray", views.generateNumpyBasicOperationsOfTwoArray),
 
     path("pandas-generation", views.pandRandomGeneration),
+    path("fetchDataFromReferenceFiles", views.fetchDataFromReferenceFiles),
 ]

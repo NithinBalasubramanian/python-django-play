@@ -102,3 +102,29 @@ def pandRandomGeneration(request):
         return JsonResponse({
             "error": str(e)
         }, status=500)
+    
+def fetchDataFromReferenceFiles(request):
+    try:
+        payload = json.loads(request.body)
+        
+        if (payload and payload["file"] == "csv"):
+            data = pd.read_csv("./filesource/refsource/bios.csv") # csv is fetched faster than excel
+        else:
+           data= pd.read_excel("./filesource/refsource/olympics-data.xlsx")
+        
+        if (payload and payload["count"]):
+            data_list = data.head(payload["count"]).to_dict(orient='records') 
+        else:
+            data_list = data.head(10).to_dict(orient='records') 
+
+        
+        return JsonResponse({ 
+            "message": "Data fetched successfully", 
+            "fileTypeExtracted": payload["file"], 
+            "length": payload["count"], 
+            "data": data_list
+        }, safe=False)
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
