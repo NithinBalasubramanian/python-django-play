@@ -10,5 +10,7 @@ urlpatterns = [
 
     path("pandas-generation", views.pandRandomGeneration),
     path("fetchDataFromReferenceFiles", views.fetchDataFromReferenceFiles),
-    path("fetchHeaderColumnsFromFile", views.fetchHeaderColumnsFromFile)
+    path("fetchHeaderColumnsFromFile", views.fetchHeaderColumnsFromFile),
+    path("fetchDataBasedOnHeader", views.fetchDataBasedOnHeader),
+    path("fetchDataBasedOnArrayOfHeader", views.fetchDataBasedOnArrayOfHeader)
 ]

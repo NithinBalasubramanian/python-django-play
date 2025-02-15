@@ -40,3 +40,65 @@ http://127.0.0.1:8000/ [local]
     {
         "file": "csv"
     }
+
+    Output Example:
+
+    data = {[
+        "athlete_id",
+        "name",
+        "born_date",
+        "born_city",
+        "born_region",
+        "born_country",
+        "NOC",
+        "height_cm",
+        "weight_kg",
+        "died_date"
+    ]}
+
+
+8 __[post] api/fetchDataBasedOnHeader__ - Once fetch header send headers to get single particular column by sending header
+
+    payload:
+
+    {
+        "header": "name",
+        "count": 25
+    }
+
+    Example Output:
+
+    data = [
+        "Jean-François Blanchy",
+        "Arnaud Boetsch"
+    ]
+
+9 __[post] api/fetchDataBasedOnArrayOfHeader__ - Once fetch header send headers to get only particular columns
+
+    payload:
+
+    {
+        "headers": ["name", "born_country"],
+        "count": 25
+    }
+
+    Example output:
+
+    "data": [
+        {
+            "name": "Jean-François Blanchy",
+            "born_country": "FRA"
+        },
+        {
+            "name": "Arnaud Boetsch",
+            "born_country": "FRA"
+        },
+        {
+            "name": "Jean Borotra",
+            "born_country": "FRA"
+        },
+        {
+            "name": "Jacques Brugnon",
+            "born_country": "FRA"
+        }
+    ]

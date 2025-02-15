@@ -150,3 +150,71 @@ def fetchHeaderColumnsFromFile(request):
         return JsonResponse({
             "error": str(e)
         }, status=500)
+
+def fetchDataBasedOnHeader(request):
+    try:
+        payload = json.loads(request.body)
+        data = pd.read_csv("./filesource/refsource/bios.csv")
+        if "header" in payload:  # Check if the key exists (important!)
+            header = payload["header"]
+
+            if isinstance(header, str): #Check if it is a string.
+                if header in data.columns: #Check if header exists in the dataframe.
+                    if "count" in payload:
+                        display_data = data[header].head(payload["count"])
+                    else:
+                        display_data = data[header].head(15)
+                    return JsonResponse({ 
+                        "message": "Filtered data fetched successfully", 
+                        "data": display_data.tolist()
+                    }, safe=False)
+
+                else:
+                    return JsonResponse({"error": f"Header '{header}' not found in CSV"}, status=400)
+
+            else:
+                return JsonResponse({"error": "Header must be a string"}, status=400)
+
+        else:
+            return JsonResponse({"error": "Missing 'header' key in payload"}, status=400)
+      
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
+    
+
+def fetchDataBasedOnArrayOfHeader(request):
+    try:
+        payload = json.loads(request.body)
+        data = pd.read_csv("./filesource/refsource/bios.csv")
+
+        if "headers" in payload:  # Changed key to "headers" (plural)
+            headers = payload["headers"]
+
+            if isinstance(headers, list):  # Must be a list of headers
+
+                # Check if all headers exist in the dataframe.
+                if all(h in data.columns for h in headers):
+                        if "count" in payload:
+                            display_data = data[headers].head(payload["count"])
+                        else:
+                            display_data = data[headers].head(15)
+
+                        #Convert to list of dictionaries for JSON serialization:
+                        return JsonResponse({"data": display_data.to_dict(orient='records')})
+
+                else:
+                    missing_headers = [h for h in headers if h not in data.columns]
+                    return JsonResponse({"error": f"Headers '{', '.join(missing_headers)}' not found in CSV"}, status=400)
+
+            else:
+                return JsonResponse({"error": "'headers' must be a list"}, status=400)
+
+        else:
+            return JsonResponse({"error": "Missing 'headers' key in payload"}, status=400)
+ 
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
