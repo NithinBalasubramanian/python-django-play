@@ -104,11 +104,11 @@ http://127.0.0.1:8000/ [local]
         }
     ]
 
-10 __[post] api/uploadFileApiAndFetchData__ - Upload CSV file and save in folder and fetch data and list
+10 __[post] api/uploadFileApiAndFetchData__ - Upload file and save in folder and fetch data and list
 
 
     payload: [form-data]
 
     {
-        "file": "files.csv" select a csv file
+        "file": "files" select csv or excel
     }

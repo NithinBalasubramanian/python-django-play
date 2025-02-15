@@ -136,9 +136,18 @@ def fetchHeaderColumnsFromFile(request):
         payload = json.loads(request.body)
 
         if "file_url" in payload:
-        
-            data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
-            
+
+            file, ext = os.path.splitext(payload["file_url"])  # Split filename and extension
+            ext = ext.lower() # Normalize the extension to lowercase.
+
+            if ext == ".csv":
+                data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+            elif ext == ".xlsx" or ext == ".xls":  # Handle both xlsx and xls
+                data = pd.read_excel("./" + payload["file_url"]) # csv is fetched faster than excel
+            else:
+                print(f"Unsupported file type: {ext}")
+                return None, None  # Or raise an exception if you prefer      
+                  
             headers = data.columns.tolist()
 
             
@@ -192,8 +201,17 @@ def fetchDataBasedOnArrayOfHeader(request):
     try:
         payload = json.loads(request.body)
         if "file_url" in payload:
-        
-            data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+
+            file, ext = os.path.splitext(payload["file_url"])  # Split filename and extension
+            ext = ext.lower() # Normalize the extension to lowercase.
+
+            if ext == ".csv":
+                data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+            elif ext == ".xlsx" or ext == ".xls":  # Handle both xlsx and xls
+                data = pd.read_excel("./" + payload["file_url"]) # csv is fetched faster than excel
+            else:
+                print(f"Unsupported file type: {ext}")
+                return None, None  # Or raise an exception if you prefer            
         
         else:
             return JsonResponse({
@@ -249,7 +267,18 @@ def uploadFileApiAndFetchData(request):
             file_name = default_storage.save(file_path, uploaded_file) # Save with the correct path.
             file_url = default_storage.url(file_name)
 
-            fetched_data = pd.read_csv(file_path).head(20)
+            file, ext = os.path.splitext(file_url)  # Split filename and extension
+            ext = ext.lower() # Normalize the extension to lowercase.
+
+            if ext == ".csv":
+                data = pd.read_csv("./" + file_url) # csv is fetched faster than excel
+            elif ext == ".xlsx" or ext == ".xls":  # Handle both xlsx and xls
+                data = pd.read_excel("./" + file_url) # csv is fetched faster than excel
+            else:
+                print(f"Unsupported file type: {ext}")
+                return None, None  # Or raise an exception if you prefer            
+        
+            fetched_data = data.head(20)
 
             return JsonResponse({'message': 'File uploaded successfully', 'file_url': file_url, 'fetched_data': fetched_data.to_dict(orient='records')}, status=200)
 
