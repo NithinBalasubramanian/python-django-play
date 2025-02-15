@@ -38,7 +38,7 @@ http://127.0.0.1:8000/ [local]
     payload:
 
     {
-        "file": "csv"
+        "file_url": "/filesource/refsource/bios.csv"
     }
 
     Output Example:
@@ -78,6 +78,7 @@ http://127.0.0.1:8000/ [local]
     payload:
 
     {
+        "file_url": "/filesource/refsource/bios.csv",
         "headers": ["name", "born_country"],
         "count": 25
     }

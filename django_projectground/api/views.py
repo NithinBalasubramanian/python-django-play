@@ -134,20 +134,22 @@ def fetchDataFromReferenceFiles(request):
 def fetchHeaderColumnsFromFile(request):
     try:
         payload = json.loads(request.body)
-        
-        if (payload and payload["file"] == "csv"):
-            data = pd.read_csv("./filesource/refsource/bios.csv") # csv is fetched faster than excel
-        else:
-           data= pd.read_excel("./filesource/refsource/olympics-data.xlsx")
-        
-        headers = data.columns.tolist()
 
+        if "file_url" in payload:
         
-        return JsonResponse({ 
-            "message": "Header fetched successfully", 
-            "fileTypeExtracted": payload["file"], 
-            "data": headers
-        }, safe=False)
+            data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+            
+            headers = data.columns.tolist()
+
+            
+            return JsonResponse({ 
+                "message": "Header fetched successfully", 
+                "data": headers
+            }, safe=False)
+        else:
+            return JsonResponse({
+                "error": "No files path found"
+            })
     except Exception as e:
         return JsonResponse({
             "error": str(e)
@@ -189,7 +191,14 @@ def fetchDataBasedOnHeader(request):
 def fetchDataBasedOnArrayOfHeader(request):
     try:
         payload = json.loads(request.body)
-        data = pd.read_csv("./filesource/refsource/bios.csv")
+        if "file_url" in payload:
+        
+            data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+        
+        else:
+            return JsonResponse({
+                "error": "No files path found"
+            })
 
         if "headers" in payload:  # Changed key to "headers" (plural)
             headers = payload["headers"]
