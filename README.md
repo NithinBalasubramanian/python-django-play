@@ -102,3 +102,12 @@ http://127.0.0.1:8000/ [local]
             "born_country": "FRA"
         }
     ]
+
+10 __[post] api/uploadFileApiAndFetchData__ - Upload CSV file and save in folder and fetch data and list
+
+
+    payload: [form-data]
+
+    {
+        "file": "files.csv" select a csv file
+    }

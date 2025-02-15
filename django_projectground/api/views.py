@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.core.files.storage import default_storage
+from django.views.decorators.csrf import csrf_exempt
 import json
 import os
 
@@ -218,3 +220,32 @@ def fetchDataBasedOnArrayOfHeader(request):
         return JsonResponse({
             "error": str(e)
         }, status=500)
+    
+@csrf_exempt
+def uploadFileApiAndFetchData(request):
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            uploaded_file = request.FILES['file']
+            target_folder = "./filesource/refsource/uploaded"  # Get the target folder from the request (default to empty string)
+
+            # Sanitize the target folder name to prevent path traversal attacks.
+            # This is CRUCIAL for security!
+            target_folder = os.path.normpath(target_folder) # Normalize the path
+            if target_folder.startswith(".."): # Check if the path contains "..".
+                return JsonResponse({'error': 'Invalid target folder'}, status=400)
+
+            # Construct the full file path:
+            file_path = os.path.join(target_folder, uploaded_file.name)  # Include target folder
+            # Save the file:
+            file_name = default_storage.save(file_path, uploaded_file) # Save with the correct path.
+            file_url = default_storage.url(file_name)
+
+            fetched_data = pd.read_csv(file_path).head(20)
+
+            return JsonResponse({'message': 'File uploaded successfully', 'file_url': file_url, 'fetched_data': fetched_data.to_dict(orient='records')}, status=200)
+
+        else:
+            return JsonResponse({'error': 'No file provided'}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
