@@ -254,6 +254,7 @@ def uploadFileApiAndFetchData(request):
         if 'file' in request.FILES:
             uploaded_file = request.FILES['file']
             target_folder = "./filesource/refsource/uploaded"  # Get the target folder from the request (default to empty string)
+            count = request.POST.get('count') 
 
             # Sanitize the target folder name to prevent path traversal attacks.
             # This is CRUCIAL for security!
@@ -278,7 +279,11 @@ def uploadFileApiAndFetchData(request):
                 print(f"Unsupported file type: {ext}")
                 return None, None  # Or raise an exception if you prefer            
         
-            fetched_data = data.head(20)
+            if count:
+                fetched_data = data.head(int(count))
+            else:
+                fetched_data = data.head(20)
+
 
             return JsonResponse({'message': 'File uploaded successfully', 'file_url': file_url, 'fetched_data': fetched_data.to_dict(orient='records')}, status=200)
 
@@ -287,3 +292,42 @@ def uploadFileApiAndFetchData(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+def fetchValuesOfColumSelected(request):
+    try:
+
+        payload = json.loads(request.body)
+
+        if "file_url" in payload:
+
+            file, ext = os.path.splitext(payload["file_url"])  # Split filename and extension
+            ext = ext.lower() # Normalize the extension to lowercase.
+
+            if ext == ".csv":
+                data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+            elif ext == ".xlsx" or ext == ".xls":  # Handle both xlsx and xls
+                data = pd.read_excel("./" + payload["file_url"]) # csv is fetched faster than excel
+            else:
+                print(f"Unsupported file type: {ext}")
+                return None, None  # Or raise an exception if you prefer            
+        
+        else:
+            return JsonResponse({
+                "error": "No files path found"
+            })
+
+        if "field" in payload:
+            if "search" in payload and "sub_field" in payload:
+                result_data = data[data[payload["field"]]== payload["search"]][payload["sub_field"]].value_counts().reset_index()
+            else:
+                result_data = data[payload["field"]].value_counts().reset_index()
+
+            #Convert to list of dictionaries for JSON serialization:
+            return JsonResponse({"data": result_data.to_dict(orient='records')})
+
+            
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500) 

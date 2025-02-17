@@ -14,5 +14,6 @@ urlpatterns = [
     path("fetchDataBasedOnHeader", views.fetchDataBasedOnHeader),
     path("fetchDataBasedOnArrayOfHeader", views.fetchDataBasedOnArrayOfHeader),
 
-    path("uploadFileApiAndFetchData", views.uploadFileApiAndFetchData)
+    path("uploadFileApiAndFetchData", views.uploadFileApiAndFetchData),
+    path("fetchValuesOfColumSelected", views.fetchValuesOfColumSelected)
 ]
