@@ -110,5 +110,80 @@ http://127.0.0.1:8000/ [local]
     payload: [form-data]
 
     {
-        "file": "files" select csv or excel
+        "file": "files" select csv or excel,
+        "count" : 20
+    }
+
+
+11 __[post] api/fetchValuesOfColumSelected__ - set file , filed will give count , further add search and subfield to get count of subfields
+
+    payload:
+
+    {
+        "file_url": "/filesource/refsource/bios.csv",
+        "field": "born_country",
+        "search": "IND",  or "USA" [optional]
+        "sub_field": "born_region"  or "born_city" [optional]
+    }
+
+    output without optional
+
+    {
+    "data": [
+        {
+            "born_country": "USA",
+            "count": 9641
+        },
+        {
+            "born_country": "GER",
+            "count": 6891
+        },
+        {
+            "born_country": "GBR",
+            "count": 5792
+        },
+        {
+            "born_country": "FRA",
+            "count": 5143
+        },
+        {
+            "born_country": "ITA",
+            "count": 4709
+        },
+        {
+            "born_country": "CAN",
+            "count": 4616
+        },
+        {
+            "born_country": "RUS",
+            "count": 4276
+        },
+        {
+            "born_country": "AUS",
+            "count": 3009
+        }
+    ]}
+
+
+    output with option given
+
+    {
+    "data": [
+        {
+            "born_region": "Punjab",
+            "count": 94
+        },
+        {
+            "born_region": "Maharashtra",
+            "count": 56
+        },
+        {
+            "born_region": "West Bengal",
+            "count": 49
+        },
+        {
+            "born_region": "Haryana",
+            "count": 43
+        }
+    ]   
     }
