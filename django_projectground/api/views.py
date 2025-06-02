@@ -4,11 +4,17 @@ from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
 import json
 import os
+import re
 
 import numpy as np
 import pandas as pd
+from urllib.parse import unquote
 
 # Create your views here.
+
+def clean_column_names(columns):
+    return [re.sub(r'\s+', ' ', col).replace('\u00a0', '').strip() for col in columns]
+
 
 def serverHealth(request):
     return HttpResponse("Hello there is my first django api")
@@ -197,6 +203,7 @@ def fetchDataBasedOnHeader(request):
         }, status=500)
     
 
+@csrf_exempt
 def fetchDataBasedOnArrayOfHeader(request):
     try:
         payload = json.loads(request.body)
@@ -248,28 +255,26 @@ def fetchDataBasedOnArrayOfHeader(request):
             "error": str(e)
         }, status=500)
     
+    
 @csrf_exempt
 def uploadFileApiAndFetchData(request):
     if request.method == 'POST':
         if 'file' in request.FILES:
             uploaded_file = request.FILES['file']
-            target_folder = "./filesource/refsource/uploaded"  # Get the target folder from the request (default to empty string)
+            target_folder = "./filesource/refsource/uploaded"
             count = request.POST.get('count') 
 
-            # Sanitize the target folder name to prevent path traversal attacks.
-            # This is CRUCIAL for security!
-            target_folder = os.path.normpath(target_folder) # Normalize the path
-            if target_folder.startswith(".."): # Check if the path contains "..".
+            target_folder = os.path.normpath(target_folder)
+            if target_folder.startswith(".."):
                 return JsonResponse({'error': 'Invalid target folder'}, status=400)
 
-            # Construct the full file path:
-            file_path = os.path.join(target_folder, uploaded_file.name)  # Include target folder
-            # Save the file:
-            file_name = default_storage.save(file_path, uploaded_file) # Save with the correct path.
+            file_path = os.path.join(target_folder, uploaded_file.name.replace(' ', '_'))
+            file_name = default_storage.save(file_path, uploaded_file)
             file_url = default_storage.url(file_name)
+            file_url = unquote(file_url).replace(' ', '_')  # Decode %20 into space
 
-            file, ext = os.path.splitext(file_url)  # Split filename and extension
-            ext = ext.lower() # Normalize the extension to lowercase.
+            file, ext = os.path.splitext(file_url)
+            ext = ext.lower()
 
             if ext == ".csv":
                 data = pd.read_csv("./" + file_url) # csv is fetched faster than excel
@@ -277,7 +282,10 @@ def uploadFileApiAndFetchData(request):
                 data = pd.read_excel("./" + file_url) # csv is fetched faster than excel
             else:
                 print(f"Unsupported file type: {ext}")
-                return None, None  # Or raise an exception if you prefer            
+                return None, None  # Or raise an exception if you prefer  
+
+            data.columns = clean_column_names(data.columns)
+            data = data.replace({np.nan: None})          
         
             if count:
                 fetched_data = data.head(int(count))
