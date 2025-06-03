@@ -300,6 +300,56 @@ def uploadFileApiAndFetchData(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def generateExcelByColumns(request):
+    try:
+        payload = json.loads(request.body)
+        if "file_url" in payload:
+
+            file, ext = os.path.splitext(payload["file_url"])  # Split filename and extension
+            ext = ext.lower() # Normalize the extension to lowercase.
+
+            if ext == ".csv":
+                data = pd.read_csv("./" + payload["file_url"]) # csv is fetched faster than excel
+            elif ext == ".xlsx" or ext == ".xls":  # Handle both xlsx and xls
+                data = pd.read_excel("./" + payload["file_url"]) # csv is fetched faster than excel
+            else:
+                print(f"Unsupported file type: {ext}")
+                return None, None  # Or raise an exception if you prefer            
+        
+        else:
+            return JsonResponse({
+                "error": "No files path found"
+            })
+
+        if "headers" in payload:  # Changed key to "headers" (plural)
+            headers = payload["headers"]
+
+            if isinstance(headers, list):  # Must be a list of headers
+
+                # Check if all headers exist in the dataframe.
+                if all(h in data.columns for h in headers):
+                        if "count" in payload:
+                            display_data = data[headers].head(payload["count"])
+                        else:
+                            display_data = data[headers].head(15)
+
+                        display_data.to_csv("./"+file+"_generated"+ ext)
+
+                        #Convert to list of dictionaries for JSON serialization:
+                        return JsonResponse({'message': 'File generated successfully'})
+
+
+            else:
+                return JsonResponse({"error": "'headers' must be a list"}, status=400)
+
+        else:
+            return JsonResponse({"error": "Missing 'headers' key in payload"}, status=400)
+ 
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
     
 
 def fetchValuesOfColumSelected(request):

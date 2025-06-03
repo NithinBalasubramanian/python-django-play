@@ -15,5 +15,6 @@ urlpatterns = [
     path("fetchDataBasedOnArrayOfHeader", views.fetchDataBasedOnArrayOfHeader),
 
     path("uploadFileApiAndFetchData", views.uploadFileApiAndFetchData),
-    path("fetchValuesOfColumSelected", views.fetchValuesOfColumSelected)
+    path("fetchValuesOfColumSelected", views.fetchValuesOfColumSelected),
+    path("generateExcelByColumns", views.generateExcelByColumns)
 ]
