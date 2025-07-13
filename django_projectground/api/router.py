@@ -16,5 +16,7 @@ urlpatterns = [
 
     path("uploadFileApiAndFetchData", views.uploadFileApiAndFetchData),
     path("fetchValuesOfColumSelected", views.fetchValuesOfColumSelected),
-    path("generateExcelByColumns", views.generateExcelByColumns)
+    path("generateExcelByColumns", views.generateExcelByColumns),
+
+    path("downloadCSV", views.dowmloadCheck)
 ]

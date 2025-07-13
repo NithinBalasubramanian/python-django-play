@@ -9,6 +9,11 @@ import re
 import numpy as np
 import pandas as pd
 from urllib.parse import unquote
+from io import StringIO, BytesIO 
+import csv
+from django.http import FileResponse
+import requests
+from urllib.parse import urlparse
 
 # Create your views here.
 
@@ -341,10 +346,12 @@ def generateExcelByColumns(request):
                         else:
                             display_data = data[headers].head(15)
 
-                        display_data.to_csv("./"+file+"_generated"+ ext)
+                        display_data.to_csv("."+file+"_generated"+ ext)
+
+                        url = "."+file+"_generated"+ ext
 
                         #Convert to list of dictionaries for JSON serialization:
-                        return JsonResponse({'message': 'File generated successfully'})
+                        return JsonResponse({'message': 'File generated successfully', 'url': url})
 
 
             else:
@@ -396,3 +403,90 @@ def fetchValuesOfColumSelected(request):
         return JsonResponse({
             "error": str(e)
         }, status=500) 
+    
+   
+@csrf_exempt
+def dowmloadCheck(request):
+      # Generate data for the CSV
+
+     # Ensure this is a POST request
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST requests are allowed."}, status=405)
+
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
+
+    if "file_url" in payload:
+        file_url = payload["file_url"]
+        
+        # Parse the URL to get the file name and extension
+        # parsed_url = urlparse(file_url)
+        # file_name = os.path.basename(file_url)
+        
+        file_base, ext = os.path.splitext(file_url) # Renamed 'file' to 'file_base' to avoid confusion
+        ext = ext.lower() # Normalize the extension to lowercase.
+
+        data = None
+        try:
+            # Use the imported 'requests' library here
+            # response = requests.get(file_url, stream=True)
+            # response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
+            
+            # # Read content into a BytesIO buffer
+            # file_content_buffer = BytesIO(response.content)
+
+            if ext == ".csv":
+                data = pd.read_csv("./"+ file_url)
+            elif ext == ".xlsx":
+                try:
+                    data = pd.read_excel("./"+ file_url, engine='openpyxl')
+                except ImportError:
+                    return JsonResponse({"error": "Missing 'openpyxl' library. Please install it (pip install openpyxl)."}, status=500)
+                except Exception as e:
+                    return JsonResponse({"error": f"Error reading XLSX file: {str(e)}. Ensure file is valid Excel format."}, status=400)
+            elif ext == ".xls":
+                try:
+                    data = pd.read_excel("./"+ file_url, engine='xlrd')
+                except ImportError:
+                    return JsonResponse({"error": "Missing 'xlrd' library. Please install it (pip install xlrd)."}, status=500)
+                except Exception as e:
+                    return JsonResponse({"error": f"Error reading XLS file: {str(e)}. Ensure file is valid Excel format."}, status=400)
+            else:
+                print(f"Unsupported file type: {ext}")
+                return JsonResponse({"error": f"Unsupported file type: {ext}"}, status=400)
+
+            return JsonResponse({"data": data})
+
+
+        except requests.exceptions.RequestException as e:
+            # Specific error for issues with fetching the URL
+            return JsonResponse({"error": f"Error fetching file from URL: {str(e)}"}, status=400)
+        except Exception as e:
+            # Catch any other unexpected errors during file processing
+            return JsonResponse({"error": f"An unexpected error occurred during file processing: {str(e)}"}, status=500)
+            
+        if data is None:
+            return JsonResponse({"error": "Could not process file. Data is empty or unsupported."}, status=500)
+
+        # Create an in-memory text buffer for CSV writing
+        csv_buffer = StringIO()
+        # Use pandas to write DataFrame to CSV directly into the StringIO buffer
+        data.to_csv(csv_buffer, index=False) # index=False prevents writing the DataFrame index as a column
+
+        # Get the string value from the StringIO buffer
+        csv_string = csv_buffer.getvalue()
+
+        # Encode the string to bytes and create a BytesIO object
+        # FileResponse expects a file-like object that provides bytes
+        response_buffer = BytesIO(csv_string.encode('utf-8'))
+
+        # Create the FileResponse
+        # FileResponse takes a file-like object (BytesIO in this case)
+        django_response = FileResponse(response_buffer, content_type='text/csv') # Renamed to avoid confusion with 'requests' response
+
+        # Set the Content-Disposition header for download
+        django_response['Content-Disposition'] = 'attachment; filename="my_generated_data.csv"'
+
+        return django_response
