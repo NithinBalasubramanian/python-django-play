@@ -25,6 +25,10 @@ def numpyRandomArray(request):
         "data": display_data.astype(int).tolist()
     })
 
+# to remove nan for a proper json export
+def clearData(data):
+    return data.replace({np.nan: None})
+
 def numpyFileGeneration(request):
     try:
         array1 = np.random.rand(2,2)*1000
@@ -237,8 +241,11 @@ def fetchDataBasedOnArrayOfHeader(request):
                         else:
                             display_data = data[headers].head(15)
 
+                        # to remove nan for a proper json export
+                        display_data_cleaned = clearData(display_data)
+
                         #Convert to list of dictionaries for JSON serialization:
-                        return JsonResponse({"data": display_data.to_dict(orient='records')})
+                        return JsonResponse({"data": display_data_cleaned.to_dict(orient='records')})
 
                 else:
                     missing_headers = [h for h in headers if h not in data.columns]
