@@ -18,5 +18,7 @@ urlpatterns = [
     path("fetchValuesOfColumSelected", views.fetchValuesOfColumSelected),
     path("generateExcelByColumns", views.generateExcelByColumns),
 
-    path("downloadCSV", views.dowmloadCheck)
+    path("downloadCSV", views.dowmloadCheck),
+
+    path("matplot", views.chart_api)
 ]

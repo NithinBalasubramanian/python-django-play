@@ -15,6 +15,10 @@ from django.http import FileResponse
 import requests
 from urllib.parse import urlparse
 
+import io
+import matplotlib.pyplot as plt
+from django.http import FileResponse, HttpResponse
+
 # Create your views here.
 
 def clean_column_names(columns):
@@ -405,6 +409,48 @@ def fetchValuesOfColumSelected(request):
         }, status=500) 
     
    
+def chart_api(request):
+    # Data for the grouped bar chart
+    fruits = ['Apples', 'Bananas', 'Cherries', 'Dates']
+    sales_2023 = [400, 350, 300, 450]
+    sales_2024 = [450, 400, 320, 470]
+    target_sales = [420, 380, 310, 460]
+
+    # Set up the plot (from the previous example)
+    bar_width = 0.25
+    x_positions = np.arange(len(fruits))
+
+    # Create a new Matplotlib figure
+    plt.figure(figsize=(10, 6))
+
+    plt.bar(x_positions - bar_width, sales_2023, color='skyblue', width=bar_width, label='2023 Sales')
+    plt.bar(x_positions, sales_2024, color='orange', width=bar_width, label='2024 Sales')
+    plt.bar(x_positions + bar_width, target_sales, color='green', width=bar_width, label='Target Sales')
+
+    plt.title('Fruit Sales Comparison')
+    plt.xlabel('Fruits')
+    plt.ylabel('Sales')
+    plt.xticks(x_positions, fruits)
+    plt.legend()
+    plt.tight_layout() # Adjusts plot to prevent labels from being cut off
+
+    # --- This is the key part for the API response ---
+
+    # Create an in-memory buffer
+    buf = io.BytesIO()
+
+    # Save the plot to the buffer as a PNG image
+    plt.savefig(buf, format='png')
+
+    # Close the plot figure to free up memory
+    plt.close()
+
+    # Rewind the buffer's cursor to the beginning
+    buf.seek(0)
+
+    # Return the buffer content as a FileResponse with the correct content type
+    return FileResponse(buf, content_type='image/png')
+
 @csrf_exempt
 def dowmloadCheck(request):
       # Generate data for the CSV
@@ -457,7 +503,7 @@ def dowmloadCheck(request):
                 print(f"Unsupported file type: {ext}")
                 return JsonResponse({"error": f"Unsupported file type: {ext}"}, status=400)
 
-            return JsonResponse({"data": data})
+            # return JsonResponse({"data": data})
 
 
         except requests.exceptions.RequestException as e:
