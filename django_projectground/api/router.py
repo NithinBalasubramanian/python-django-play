@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .Container import MatlibplotController
 
 urlpatterns = [
     path("serverhealth", views.serverHealth),
@@ -20,5 +21,8 @@ urlpatterns = [
 
     path("downloadCSV", views.dowmloadCheck),
 
-    path("matplot", views.chart_api)
+    # Graph based API calls 
+
+    path("matplot", MatlibplotController.chart_api),
+    path("generateGraph",MatlibplotController.generateGraph)
 ]
