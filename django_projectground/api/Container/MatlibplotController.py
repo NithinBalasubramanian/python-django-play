@@ -79,6 +79,7 @@ def generateGraph(request):
 
 
         if data_x and data_y:
+            plt.figure(figsize=(10, 6))
 
             if graphType.lower() == 'bar':
                 plt.bar(data_x, data_y)
@@ -96,6 +97,7 @@ def generateGraph(request):
             plt.ylabel(ylabel)
             plt.legend()
             plt.tight_layout()
+            # plt.grid(True)
             # Create an in-memory buffer
             buf = io.BytesIO()
 
